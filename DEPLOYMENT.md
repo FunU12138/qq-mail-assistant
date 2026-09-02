@@ -35,7 +35,7 @@ QQ_MAIL_ASSISTANT_PORT=3050
 
 ```text
 /app/private/resumes/data_ai.pdf
-/app/private/resumes/business_analysis.pdf
+/app/private/resumes/english_resume.pdf
 /app/private/resumes/industry_research.pdf
 ```
 
