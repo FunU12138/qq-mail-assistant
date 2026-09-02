@@ -76,16 +76,14 @@ function keywordHits(text, keywords) {
 }
 
 function selectResume({ config, projectRoot, jd, resumeKey }) {
-  if (resumeKey && resumeKey !== "auto") {
+  const normalizedResumeKey = resumeKey || "auto";
+  if (normalizedResumeKey && normalizedResumeKey !== "auto") {
     return {
-      resume: configuredResume(config, resumeKey),
-      reason: `Manual resume_key selected: ${resumeKey}`,
+      resume: configuredResume(config, normalizedResumeKey),
+      reason: `Manual resume_key selected: ${normalizedResumeKey}`,
       matched_rule: null,
       matched_keywords: []
     };
-  }
-  if (resumeKey !== "auto") {
-    throw new Error("create_job_application_draft requires resume_key. Use a configured key such as data_ai, or use resume_key=auto.");
   }
 
   const rules = loadResumeRules(projectRoot);
@@ -95,7 +93,7 @@ function selectResume({ config, projectRoot, jd, resumeKey }) {
     if (hits.length > 0 && (!best || hits.length > best.hits.length)) best = { rule, hits };
   }
   if (!best) {
-    throw new Error("No application rule matched the job description. Pass resume_key explicitly or update application_rules/resume_selection.yaml.");
+    throw new Error("No application rule matched the job description. Ask ChatGPT to choose a resume_key explicitly or update application_rules/resume_selection.yaml.");
   }
   return {
     resume: configuredResume(config, best.rule.resume),
