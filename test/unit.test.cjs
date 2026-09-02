@@ -52,7 +52,7 @@ const config = {
   jobApplication: { candidateName: "方乐", school: "北京交通大学" },
   resumes: {
     data_ai: { path: pdf, tags: ["AI", "LLM", "data"] },
-    business_analysis: { path: pdf, tags: ["strategy", "business"] },
+    english_resume: { path: pdf, tags: ["strategy", "business"] },
     industry_research: { path: pdf, tags: ["行业研究", "产业研究"] }
   }
 };
@@ -72,7 +72,7 @@ const autoSelection = selectResume({
   config,
   projectRoot: path.resolve(__dirname, ".."),
   jd: "负责 AI Agent、Python 数据建模和机器学习应用",
-  resumeKey: "auto"
+  resumeKey: undefined
 });
 assert.strictEqual(autoSelection.resume.key, "data_ai");
 assert(autoSelection.matched_keywords.includes("AI"));
