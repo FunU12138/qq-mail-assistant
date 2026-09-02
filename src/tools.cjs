@@ -45,7 +45,7 @@ const semanticTools = [
   { name: "archive_email", description: "Move a QQ Mail message to an archive mailbox by copy plus delete.", inputSchema: { type: "object", additionalProperties: false, properties: { mailbox: { type: "string" }, uid: { type: "number" }, archive_mailbox: { type: "string" } }, required: ["uid"] } },
   {
     name: "create_job_application_draft",
-    description: "Optional job-application helper. Use resume_key=auto to match JD against application_rules, copy and rename the selected resume PDF, validate the application, and create a real QQ Mail draft. Does not send email.",
+    description: "Optional job-application helper. ChatGPT should choose a resume from the JD; omit resume_key or use resume_key=auto to match application_rules, or pass a specific configured key. Copies and renames the selected resume PDF, validates the application, and creates a real QQ Mail draft. Does not send email.",
     inputSchema: {
       type: "object",
       additionalProperties: false,
@@ -55,13 +55,13 @@ const semanticTools = [
         position: { type: "string" },
         jd: { type: "string" },
         job_description: { type: "string" },
-        resume_key: { type: "string", description: "Required. Use a configured key such as data_ai/business_analysis/industry_research, or auto." },
+        resume_key: { type: "string", description: "Optional. Omit or use auto so ChatGPT matches the JD against rules; or pass data_ai/english_resume/industry_research explicitly." },
         subject: { type: "string" },
         body: { type: "string" },
         text: { type: "string" },
         html: { type: "string" }
       },
-      required: ["to", "position", "resume_key"]
+      required: ["to", "position"]
     }
   },
   {
@@ -75,10 +75,10 @@ const semanticTools = [
         position: { type: "string" },
         jd: { type: "string" },
         job_description: { type: "string" },
-        resume_key: { type: "string", description: "Required. Use a configured key or auto." },
+        resume_key: { type: "string", description: "Optional. Omit or use auto to match the JD against rules; or pass a configured key explicitly." },
         subject: { type: "string" }
       },
-      required: ["position", "resume_key"]
+      required: ["position"]
     }
   }
 ];
