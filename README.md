@@ -94,7 +94,7 @@ debug-read-mail.cmd
 ```text
 resume_library/
   data_ai.pdf
-  business_analysis.pdf
+  english_resume.pdf
   industry_research.pdf
 ```
 
@@ -106,4 +106,4 @@ application_rules/
   file_name.yaml
 ```
 
-`create_job_application_draft` 要求显式传入 `resume_key`。可以传具体简历键，例如 `data_ai`，也可以传 `auto`。当 `resume_key=auto` 时，会读取 JD，匹配 `application_rules/resume_selection.yaml`，返回选中简历和原因，然后复制简历库 PDF 到 `outgoing/`，按 JD 要求或默认规则重命名附件，创建完整 MIME 邮件，并通过 IMAP `APPEND` 保存到 QQ 邮箱草稿箱。
+`create_job_application_draft` 会让 ChatGPT 根据 JD 判断使用哪份 PDF。默认可省略 `resume_key`，效果等同 `resume_key=auto`；也可以传具体简历键，例如 `data_ai`、`english_resume` 或 `industry_research`。自动模式会读取 JD，匹配 `application_rules/resume_selection.yaml`，返回选中简历和原因，然后复制简历库 PDF 到 `outgoing/`，按 JD 要求或默认规则重命名附件，创建完整 MIME 邮件，并通过 IMAP `APPEND` 保存到 QQ 邮箱草稿箱。
