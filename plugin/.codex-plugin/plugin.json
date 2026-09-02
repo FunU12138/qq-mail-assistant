@@ -1,0 +1,25 @@
+{
+  "name": "qq-mail-assistant",
+  "version": "0.1.0",
+  "description": "QQ Mail assistant MCP tools for reading mail and creating safe drafts.",
+  "author": {
+    "name": "Fang Le"
+  },
+  "license": "UNLICENSED",
+  "keywords": ["qq-mail", "email", "mcp", "drafts", "job-application"],
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "QQ 邮箱助手",
+    "shortDescription": "读取 QQ 邮箱并创建安全草稿。",
+    "longDescription": "通过 QQ 邮箱 IMAP/SMTP 授权码提供少量语义邮件工具，第一阶段默认只创建草稿，不自动发送。",
+    "developerName": "Fang Le",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "defaultPrompt": [
+      "根据这个 JD 创建求职邮件草稿",
+      "搜索我的 QQ 邮箱最近邮件",
+      "给这封邮件创建回复草稿"
+    ],
+    "brandColor": "#2563EB"
+  }
+}

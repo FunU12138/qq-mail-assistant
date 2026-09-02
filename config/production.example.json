@@ -1,0 +1,32 @@
+{
+  "account": {
+    "email": "2381930907@qq.com",
+    "displayName": "方乐"
+  },
+  "imap": {
+    "host": "imap.qq.com",
+    "port": 993,
+    "secure": true,
+    "draftsMailbox": ""
+  },
+  "smtp": {
+    "host": "smtp.qq.com",
+    "port": 465,
+    "secure": true
+  },
+  "resumes": {
+    "data_ai": {
+      "path": "/app/private/resumes/data_ai.pdf",
+      "tags": ["AI", "data", "LLM", "machine learning", "product", "analysis"]
+    },
+    "business_product": {
+      "path": "/app/private/resumes/business_product.pdf",
+      "tags": ["business", "strategy", "product", "market research", "consulting", "commercial"]
+    }
+  },
+  "jobApplication": {
+    "candidateName": "方乐",
+    "school": "北京交通大学",
+    "defaultBodyStyle": "plain"
+  }
+}

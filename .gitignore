@@ -1,0 +1,9 @@
+node_modules/
+runtime/
+outgoing/
+config/local.json
+config/production.json
+.env
+*.log
+private/
+*.lnk

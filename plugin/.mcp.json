@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "qq_mail_assistant": {
+      "type": "http",
+      "url": "http://127.0.0.1:3050/mcp",
+      "enabled": true,
+      "default_tools_approval_mode": "approve"
+    }
+  }
+}

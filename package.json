@@ -1,0 +1,17 @@
+{
+  "name": "qq-mail-assistant",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Independent MCP mail assistant for QQ Mail over IMAP/SMTP.",
+  "main": "src/server.cjs",
+  "scripts": {
+    "start": "node src/server.cjs",
+    "test": "node test/unit.test.cjs",
+    "audit-tools": "node scripts/audit-tools.cjs",
+    "live-smoke": "node scripts/live-smoke.cjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {}
+}
