@@ -21,7 +21,7 @@ rules:
       - 数据建模
 
   商业分析:
-    resume: business_analysis
+    resume: english_resume
     keywords:
       - 商业分析
       - Business Analyst
@@ -47,7 +47,7 @@ rules:
       - 深度报告
 
   咨询:
-    resume: business_analysis
+    resume: english_resume
     keywords:
       - 咨询
       - Consulting
