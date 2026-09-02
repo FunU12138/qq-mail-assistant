@@ -69,6 +69,20 @@ function normalizeError(error, action) {
   return { success: false, error_type, message, action };
 }
 
+function summarizeArgs(args = {}) {
+  return {
+    keys: Object.keys(args),
+    mailbox: args.mailbox,
+    uid: args.uid,
+    limit: args.limit,
+    query_length: typeof args.query === "string" ? args.query.length : undefined,
+    subject_length: typeof args.subject === "string" ? args.subject.length : undefined,
+    text_length: typeof args.text === "string" ? args.text.length : undefined,
+    html_length: typeof args.html === "string" ? args.html.length : undefined,
+    attachment_count: Array.isArray(args.attachments) ? args.attachments.length : undefined
+  };
+}
+
 function createServer(config = loadConfig()) {
   const logger = createLogger(path.join(config.paths.runtimeDir, "assistant.ndjson"));
   const handlers = createHandlers(config, logger);
@@ -113,7 +127,7 @@ function createServer(config = loadConfig()) {
         const args = params?.arguments || {};
         const handler = handlers[name];
         if (!handler) return errorResponse(id, -32602, `Unknown tool: ${name}`);
-        logger.info("tool_call", { name, args });
+        logger.info("tool_call", { name, args: summarizeArgs(args) });
         const result = await handler(args);
         return jsonResponse(id, {
           resultType: "complete",

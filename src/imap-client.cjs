@@ -8,10 +8,15 @@ class ImapClient {
     this.socket = null;
     this.buffer = Buffer.alloc(0);
     this.tagNo = 1;
+    this.exists = 0;
   }
 
   connect() {
     return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        reject(new Error(`IMAP connect timed out after ${this.options.connectTimeoutMs || 15000}ms`));
+        if (this.socket) this.socket.destroy();
+      }, this.options.connectTimeoutMs || 15000);
       this.socket = tls.connect({
         host: this.options.host,
         port: this.options.port || 993,
@@ -21,12 +26,17 @@ class ImapClient {
       this.socket.once("secureConnect", async () => {
         try {
           await this.readUntilTaggedOrGreeting();
+          clearTimeout(timer);
           resolve();
         } catch (error) {
+          clearTimeout(timer);
           reject(error);
         }
       });
-      this.socket.once("error", reject);
+      this.socket.once("error", error => {
+        clearTimeout(timer);
+        reject(error);
+      });
     });
   }
 
@@ -56,7 +66,10 @@ class ImapClient {
   }
 
   async select(mailbox, readOnly = false) {
-    return this.command(`${readOnly ? "EXAMINE" : "SELECT"} ${quote(mailbox)}`);
+    const text = await this.command(`${readOnly ? "EXAMINE" : "SELECT"} ${quote(mailbox)}`);
+    const existsMatch = text.match(/\* (\d+) EXISTS/i);
+    this.exists = existsMatch ? Number(existsMatch[1]) : 0;
+    return text;
   }
 
   async search(criteria = "ALL") {
@@ -69,6 +82,12 @@ class ImapClient {
     const fields = "FROM TO CC SUBJECT DATE MESSAGE-ID IN-REPLY-TO REFERENCES";
     const text = await this.command(`UID FETCH ${uid} (FLAGS RFC822.SIZE BODY.PEEK[HEADER.FIELDS (${fields})])`);
     return parseFetchHeaders(text, uid);
+  }
+
+  async fetchHeadersBySequence(sequenceNumber) {
+    const fields = "FROM TO CC SUBJECT DATE MESSAGE-ID IN-REPLY-TO REFERENCES";
+    const text = await this.command(`FETCH ${sequenceNumber} (UID FLAGS RFC822.SIZE BODY.PEEK[HEADER.FIELDS (${fields})])`);
+    return parseFetchHeaders(text);
   }
 
   async fetchRaw(uid) {
@@ -133,6 +152,11 @@ class ImapClient {
     return new Promise((resolve, reject) => {
       let text = "";
       let pendingLiteralBytes = 0;
+      const timeoutMs = this.options.commandTimeoutMs || 30000;
+      const timer = setTimeout(() => {
+        cleanup();
+        reject(new Error(`IMAP command timed out after ${timeoutMs}ms; partial response: ${compact(text)}`));
+      }, timeoutMs);
       const onData = chunk => {
         this.buffer = Buffer.concat([this.buffer, chunk]);
         while (true) {
@@ -167,6 +191,7 @@ class ImapClient {
         reject(error);
       };
       const cleanup = () => {
+        clearTimeout(timer);
         this.socket.off("data", onData);
         this.socket.off("error", onError);
       };
@@ -204,12 +229,13 @@ function parseHeaderBlock(block) {
 }
 
 function parseFetchHeaders(text, uid) {
+  const uidMatch = text.match(/\bUID\s+(\d+)/i);
   const sizeMatch = text.match(/RFC822\.SIZE\s+(\d+)/i);
   const flagsMatch = text.match(/FLAGS\s+\(([^)]*)\)/i);
   const headerMatch = text.match(/BODY\[HEADER\.FIELDS[^\]]*\]\s+\{\d+\}\r\n([\s\S]*?)\r\n\)/i);
   const headers = parseHeaderBlock(headerMatch ? headerMatch[1] : text);
   return {
-    uid,
+    uid: uid !== undefined ? uid : (uidMatch ? Number(uidMatch[1]) : undefined),
     subject: headers.subject || "",
     from: headers.from || "",
     to: headers.to || "",

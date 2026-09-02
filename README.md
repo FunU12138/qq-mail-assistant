@@ -58,6 +58,14 @@ create-desktop-shortcut.cmd
 
 它会在桌面创建一个真正的快捷方式，快捷方式目标仍指向本项目里的启动入口。
 
+读取邮件诊断：
+
+```text
+debug-read-mail.cmd
+```
+
+它会调用 `list_emails` 和 `search_emails`，用于排查 ChatGPT 侧 502 背后的真实本地错误。
+
 ## ChatGPT 网页版
 
 请看 [CHATGPT_WEB_SETUP.md](CHATGPT_WEB_SETUP.md)。网页版不能直接访问 `127.0.0.1`，需要 HTTPS MCP 地址；本地开发阶段建议用 Secure MCP Tunnel，稳定后再部署成远程 MCP 服务。

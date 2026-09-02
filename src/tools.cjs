@@ -35,7 +35,7 @@ const draftProps = {
 
 const semanticTools = [
   { name: "list_emails", description: "List recent emails from a mailbox using QQ Mail IMAP.", inputSchema: emailSchema },
-  { name: "search_emails", description: "Search QQ Mail messages by IMAP TEXT query.", inputSchema: { ...emailSchema, properties: { ...emailSchema.properties, query: { type: "string" } } } },
+  { name: "search_emails", description: "Search recent QQ Mail message headers by default; set full_text true for slower IMAP TEXT search.", inputSchema: { ...emailSchema, properties: { ...emailSchema.properties, query: { type: "string" }, scan_limit: { type: "number", minimum: 1, maximum: 200 }, full_text: { type: "boolean" } } } },
   { name: "read_email", description: "Read a raw email by IMAP UID.", inputSchema: { type: "object", additionalProperties: false, properties: { mailbox: { type: "string" }, uid: { type: "number" } }, required: ["uid"] } },
   { name: "create_draft", description: "Create a real QQ Mail draft by appending a complete MIME message to the Drafts mailbox. Does not send email.", inputSchema: { type: "object", additionalProperties: false, properties: draftProps, required: ["to", "subject"] } },
   { name: "update_draft", description: "Replace an existing draft by creating a new draft and deleting the old draft UID.", inputSchema: { type: "object", additionalProperties: false, properties: { ...draftProps, uid: { type: "number" }, delete_original: { type: "boolean" } }, required: ["uid", "to", "subject"] } },

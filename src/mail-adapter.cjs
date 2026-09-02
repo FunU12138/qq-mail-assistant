@@ -45,15 +45,26 @@ class MailAdapter {
 
   async listEmails({ mailbox = "INBOX", limit = 10 } = {}) {
     return this.withImap(async client => {
-      const uids = await client.search("ALL");
-      const selected = uids.slice(-Number(limit || 10)).reverse();
+      const count = client.exists || 0;
+      const max = Math.max(1, Math.min(Number(limit || 10), 50));
+      const selected = [];
+      for (let seq = count; seq >= 1 && selected.length < max; seq--) selected.push(seq);
       const emails = [];
-      for (const uid of selected) emails.push(await client.fetchHeaders(uid));
-      return { mailbox, emails };
+      for (const seq of selected) emails.push(await client.fetchHeadersBySequence(seq));
+      return { mailbox, total_messages: count, emails };
     }, true, mailbox);
   }
 
-  async searchEmails({ mailbox = "INBOX", query = "", limit = 10 } = {}) {
+  async searchEmails({ mailbox = "INBOX", query = "", limit = 10, scan_limit = 50, full_text = false } = {}) {
+    if (!query) return this.listEmails({ mailbox, limit });
+    if (!full_text) {
+      const recent = await this.listEmails({ mailbox, limit: Math.max(Number(limit || 10), Math.min(Number(scan_limit || 50), 200)) });
+      const needle = String(query || "").toLowerCase();
+      const emails = recent.emails
+        .filter(email => [email.subject, email.from, email.to, email.cc, email.date].some(value => String(value || "").toLowerCase().includes(needle)))
+        .slice(0, Number(limit || 10));
+      return { mailbox, query, searched_recent_messages: recent.emails.length, emails };
+    }
     const criteria = query ? `${/[^\x00-\x7f]/.test(query) ? "CHARSET UTF-8 " : ""}TEXT ${imapString(query)}` : "ALL";
     return this.withImap(async client => {
       const uids = await client.search(criteria);
