@@ -19,8 +19,8 @@
       "path": "resume_library/data_ai.pdf",
       "tags": ["AI", "Agent", "Python", "Machine Learning", "XGBoost", "LSTM", "数据建模", "预测", "时间序列"]
     },
-    "business_analysis": {
-      "path": "resume_library/business_analysis.pdf",
+    "english_resume": {
+      "path": "resume_library/english_resume.pdf",
       "tags": ["行业研究", "政策分析", "咨询报告", "PPT", "市场分析", "业务洞察"]
     },
     "industry_research": {
