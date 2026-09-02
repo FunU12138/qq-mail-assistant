@@ -183,9 +183,12 @@ class MailAdapter {
     for (const [key, resume] of Object.entries(resumes)) {
       const tags = resume.tags || [];
       const score = tags.reduce((sum, tag) => sum + (text.includes(String(tag).toLowerCase()) ? 1 : 0), 0);
-      if (!best || score > best.score) best = { key, score, ...resume };
+      if (score > 0 && (!best || score > best.score)) best = { key, score, ...resume };
     }
-    if (!best) throw new Error("No resumes configured.");
+    if (!best) {
+      if (Object.keys(resumes).length === 0) throw new Error("No resumes configured.");
+      throw new Error("No configured resume matched the job description. Pass resume_key or update config/local.json resumes tags.");
+    }
     return best;
   }
 

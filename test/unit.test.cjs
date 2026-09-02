@@ -56,6 +56,10 @@ const config = {
 };
 const adapter = new MailAdapter(config, { info() {}, warn() {}, error() {} });
 assert.strictEqual(adapter.chooseResume("LLM 产品和 AI 数据分析", null).key, "data_ai");
+assert.throws(
+  () => adapter.chooseResume("古典文学编辑与校对岗位", null),
+  /No configured resume matched/
+);
 const before = fs.readFileSync(pdf).toString("hex");
 const copy = adapter.prepareOutgoingCopy(config.resumes.data_ai, "测试公司", "AI产品实习生");
 assert(fs.existsSync(copy.path));
