@@ -7,3 +7,5 @@ config/production.json
 *.log
 private/
 *.lnk
+resume_library/*.pdf
+!resume_library/.gitkeep

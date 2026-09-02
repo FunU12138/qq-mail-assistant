@@ -17,16 +17,22 @@
   "resumes": {
     "data_ai": {
       "path": "/app/private/resumes/data_ai.pdf",
-      "tags": ["AI", "data", "LLM", "machine learning", "product", "analysis"]
+      "tags": ["AI", "Agent", "Python", "Machine Learning", "XGBoost", "LSTM", "数据建模", "预测", "时间序列"]
     },
-    "business_product": {
-      "path": "/app/private/resumes/business_product.pdf",
-      "tags": ["business", "strategy", "product", "market research", "consulting", "commercial"]
+    "business_analysis": {
+      "path": "/app/private/resumes/business_analysis.pdf",
+      "tags": ["行业研究", "政策分析", "咨询报告", "PPT", "市场分析", "业务洞察"]
+    },
+    "industry_research": {
+      "path": "/app/private/resumes/industry_research.pdf",
+      "tags": ["产业趋势", "市场数据", "能源", "电力市场", "政策研究", "行业分析"]
     }
   },
   "jobApplication": {
     "candidateName": "方乐",
     "school": "北京交通大学",
+    "major": "环境工程",
+    "graduationTime": "2027.06",
     "defaultBodyStyle": "plain"
   }
 }

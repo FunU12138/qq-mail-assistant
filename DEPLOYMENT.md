@@ -35,7 +35,8 @@ QQ_MAIL_ASSISTANT_PORT=3050
 
 ```text
 /app/private/resumes/data_ai.pdf
-/app/private/resumes/business_product.pdf
+/app/private/resumes/business_analysis.pdf
+/app/private/resumes/industry_research.pdf
 ```
 
 不要把简历 PDF 提交到 GitHub。

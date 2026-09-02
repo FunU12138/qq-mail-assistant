@@ -1,0 +1,56 @@
+rules:
+
+  AI应用:
+    resume: data_ai
+    keywords:
+      - AI
+      - Agent
+      - 大模型
+      - 机器学习
+      - 算法
+      - 数据科学
+
+  数据分析:
+    resume: data_ai
+    keywords:
+      - Data Analyst
+      - 数据分析
+      - SQL
+      - Python
+      - Dashboard
+      - 数据建模
+
+  商业分析:
+    resume: business_analysis
+    keywords:
+      - 商业分析
+      - Business Analyst
+      - 战略分析
+      - 咨询
+      - 市场分析
+
+  行业研究:
+    resume: industry_research
+    keywords:
+      - 行业研究
+      - 产业研究
+      - 政策研究
+      - 市场研究
+      - 投研
+
+  券商研究:
+    resume: industry_research
+    keywords:
+      - 券商
+      - 研究所
+      - 分析师
+      - 深度报告
+
+  咨询:
+    resume: business_analysis
+    keywords:
+      - 咨询
+      - Consulting
+      - PPT
+      - 报告撰写
+      - 案头研究

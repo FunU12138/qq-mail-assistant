@@ -5,6 +5,11 @@ const path = require("path");
 const { ImapClient } = require("./imap-client.cjs");
 const { buildMimeMessage, messageId, sanitizeFileName } = require("./mime.cjs");
 const { requireAuth } = require("./config.cjs");
+const {
+  buildAttachmentFileName,
+  selectResume,
+  validateApplication
+} = require("../optional_skill/job_application/index.cjs");
 
 class MailAdapter {
   constructor(config, logger) {
@@ -192,13 +197,14 @@ class MailAdapter {
     return best;
   }
 
-  prepareOutgoingCopy(resume, company, position) {
-    const source = path.resolve(resume.path);
+  prepareOutgoingCopy(resume, company, position, attachmentFilename) {
+    const configuredPath = path.isAbsolute(resume.path)
+      ? resume.path
+      : path.join(this.config.paths.projectRoot, resume.path);
+    const source = path.resolve(configuredPath);
     if (!fs.existsSync(source)) throw new Error(`Resume not found: ${source}`);
     fs.mkdirSync(this.config.paths.outgoingDir, { recursive: true });
-    const base = sanitizeFileName(`${this.config.jobApplication?.candidateName || "候选人"}_${this.config.jobApplication?.school || "学校"}_${position || "求职"}.pdf`);
-    const prefix = company ? `${sanitizeFileName(company)}_` : "";
-    const filename = sanitizeFileName(`${prefix}${base}`);
+    const filename = sanitizeFileName(attachmentFilename || `${this.config.jobApplication?.candidateName || "候选人"}_${this.config.jobApplication?.school || "学校"}_${position || "求职"}.pdf`);
     const target = path.join(this.config.paths.outgoingDir, `${Date.now()}_${filename}`);
     fs.copyFileSync(source, target);
     return { source, path: target, filename };
@@ -222,27 +228,95 @@ class MailAdapter {
   }
 
   async createJobApplicationDraft(input) {
-    const resume = this.chooseResume(input.jd || input.job_description, input.resume_key);
-    const copy = this.prepareOutgoingCopy(resume, input.company, input.position);
+    const jd = input.jd || input.job_description;
+    const selection = selectResume({
+      config: this.config,
+      projectRoot: this.config.paths.projectRoot,
+      jd,
+      resumeKey: input.resume_key
+    });
+    const resume = selection.resume;
+    const attachmentFilename = buildAttachmentFileName({
+      config: this.config,
+      projectRoot: this.config.paths.projectRoot,
+      jd,
+      position: input.position
+    });
+    const copy = this.prepareOutgoingCopy(resume, input.company, input.position, attachmentFilename);
     const generated = this.generateJobApplicationText({
       company: input.company,
       position: input.position,
-      jd: input.jd || input.job_description
+      jd
     });
+    const subject = input.subject || generated.subject;
+    const text = input.text || input.body || generated.body;
+    const applicationCheck = validateApplication({
+      selectedResume: resume,
+      subject,
+      attachmentFilename: copy.filename,
+      attachments: [{ path: copy.path, filename: copy.filename }],
+      jd,
+      position: input.position
+    });
+    if (!applicationCheck.ready) throw new Error(applicationCheck.summary);
     const result = await this.createDraft({
       to: input.to,
-      subject: input.subject || generated.subject,
-      text: input.text || input.body || generated.body,
+      subject,
+      text,
       html: input.html,
       attachments: [{ path: copy.path, filename: copy.filename }]
     });
     return {
       ...result,
       selected_resume_key: resume.key,
+      selected_resume_reason: selection.reason,
+      matched_rule: selection.matched_rule,
+      matched_keywords: selection.matched_keywords,
       original_resume: copy.source,
       outgoing_attachment: copy.path,
+      attachment_filename: copy.filename,
       generated_subject: input.subject ? undefined : generated.subject,
+      application_check: applicationCheck.summary,
       temporary_file_lifecycle: "kept in outgoing/ for audit and safe manual cleanup after draft verification"
+    };
+  }
+
+  validateApplication(input) {
+    const jd = input.jd || input.job_description;
+    const selection = selectResume({
+      config: this.config,
+      projectRoot: this.config.paths.projectRoot,
+      jd,
+      resumeKey: input.resume_key
+    });
+    const attachmentFilename = buildAttachmentFileName({
+      config: this.config,
+      projectRoot: this.config.paths.projectRoot,
+      jd,
+      position: input.position
+    });
+    const generated = this.generateJobApplicationText({
+      company: input.company,
+      position: input.position,
+      jd
+    });
+    const subject = input.subject || generated.subject;
+    const check = validateApplication({
+      selectedResume: selection.resume,
+      subject,
+      attachmentFilename,
+      attachments: [{ filename: attachmentFilename }],
+      jd,
+      position: input.position
+    });
+    return {
+      ...check,
+      selected_resume_key: selection.resume.key,
+      selected_resume_reason: selection.reason,
+      matched_rule: selection.matched_rule,
+      matched_keywords: selection.matched_keywords,
+      attachment_filename: attachmentFilename,
+      subject
     };
   }
 }

@@ -13,8 +13,9 @@ ChatGPT -> 少量语义邮件工具 -> Mail Adapter -> IMAP/SMTP -> QQ 邮箱。
 ## 配置
 
 1. 复制 `config/example.json` 为 `config/local.json`。
-2. 修改简历路径和标签。
-3. 设置环境变量：
+2. 普通邮箱能力无需配置简历。
+3. 求职投递辅助模块默认读取 `resume_library/` 和 `application_rules/`。
+4. 设置环境变量：
 
 ```powershell
 $env:QQ_MAIL_AUTH_CODE = "你的 QQ 邮箱授权码"
@@ -81,6 +82,28 @@ debug-read-mail.cmd
 - `download_attachment`
 - `mark_as_read`
 - `archive_email`
+- `validate_application`
 - `create_job_application_draft`
 
-`create_job_application_draft` 会根据 JD 和配置中的简历标签选择简历，复制为 outgoing 附件副本，使用中文安全文件名，创建完整 MIME 邮件，并通过 IMAP `APPEND` 保存到 QQ 邮箱草稿箱。
+普通邮件工具保持通用邮箱助手能力。求职投递只是可选模块，入口是 `validate_application` 和 `create_job_application_draft`。
+
+## 求职投递辅助模块
+
+简历库：
+
+```text
+resume_library/
+  data_ai.pdf
+  business_analysis.pdf
+  industry_research.pdf
+```
+
+规则库：
+
+```text
+application_rules/
+  resume_selection.yaml
+  file_name.yaml
+```
+
+`create_job_application_draft` 要求显式传入 `resume_key`。可以传具体简历键，例如 `data_ai`，也可以传 `auto`。当 `resume_key=auto` 时，会读取 JD，匹配 `application_rules/resume_selection.yaml`，返回选中简历和原因，然后复制简历库 PDF 到 `outgoing/`，按 JD 要求或默认规则重命名附件，创建完整 MIME 邮件，并通过 IMAP `APPEND` 保存到 QQ 邮箱草稿箱。

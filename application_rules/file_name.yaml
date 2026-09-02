@@ -1,0 +1,13 @@
+default:
+  pattern: 姓名_学校_岗位名称.pdf
+
+jd_format_detection:
+  strict_when_mentions:
+    - 姓名-学校-专业-毕业时间
+    - 姓名_学校_专业_毕业时间
+
+fields:
+  name: jobApplication.candidateName
+  school: jobApplication.school
+  major: jobApplication.major
+  graduation_time: jobApplication.graduationTime

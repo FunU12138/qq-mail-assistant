@@ -45,7 +45,7 @@ const semanticTools = [
   { name: "archive_email", description: "Move a QQ Mail message to an archive mailbox by copy plus delete.", inputSchema: { type: "object", additionalProperties: false, properties: { mailbox: { type: "string" }, uid: { type: "number" }, archive_mailbox: { type: "string" } }, required: ["uid"] } },
   {
     name: "create_job_application_draft",
-    description: "Choose a configured resume from a JD, copy and rename the PDF attachment, generate or accept subject/body, and create a real QQ Mail draft. Does not send email.",
+    description: "Optional job-application helper. Use resume_key=auto to match JD against application_rules, copy and rename the selected resume PDF, validate the application, and create a real QQ Mail draft. Does not send email.",
     inputSchema: {
       type: "object",
       additionalProperties: false,
@@ -55,13 +55,30 @@ const semanticTools = [
         position: { type: "string" },
         jd: { type: "string" },
         job_description: { type: "string" },
-        resume_key: { type: "string" },
+        resume_key: { type: "string", description: "Required. Use a configured key such as data_ai/business_analysis/industry_research, or auto." },
         subject: { type: "string" },
         body: { type: "string" },
         text: { type: "string" },
         html: { type: "string" }
       },
-      required: ["to", "position"]
+      required: ["to", "position", "resume_key"]
+    }
+  },
+  {
+    name: "validate_application",
+    description: "Validate a job application before creating a draft: resume selection, subject, attachment name, and required information.",
+    inputSchema: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        company: { type: "string" },
+        position: { type: "string" },
+        jd: { type: "string" },
+        job_description: { type: "string" },
+        resume_key: { type: "string", description: "Required. Use a configured key or auto." },
+        subject: { type: "string" }
+      },
+      required: ["position", "resume_key"]
     }
   }
 ];
@@ -78,7 +95,8 @@ function createHandlers(config, logger) {
     download_attachment: args => adapter.downloadAttachment(args),
     mark_as_read: args => adapter.markAsRead(args),
     archive_email: args => adapter.archiveEmail(args),
-    create_job_application_draft: args => adapter.createJobApplicationDraft(args)
+    create_job_application_draft: args => adapter.createJobApplicationDraft(args),
+    validate_application: args => adapter.validateApplication(args)
   };
 }
 

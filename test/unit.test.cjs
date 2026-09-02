@@ -8,6 +8,7 @@ const { buildMimeMessage, encodeHeader, sanitizeFileName } = require("../src/mim
 const { redact } = require("../src/logger.cjs");
 const { MailAdapter, extractAttachments } = require("../src/mail-adapter.cjs");
 const { semanticTools } = require("../src/tools.cjs");
+const { buildAttachmentFileName, selectResume, validateApplication } = require("../optional_skill/job_application/index.cjs");
 
 assert.strictEqual(encodeHeader("中文标题").startsWith("=?UTF-8?B?"), true);
 assert.strictEqual(sanitizeFileName('方乐:AI/产品?.pdf'), "方乐_AI_产品_.pdf");
@@ -51,7 +52,8 @@ const config = {
   jobApplication: { candidateName: "方乐", school: "北京交通大学" },
   resumes: {
     data_ai: { path: pdf, tags: ["AI", "LLM", "data"] },
-    business_product: { path: pdf, tags: ["strategy", "business"] }
+    business_analysis: { path: pdf, tags: ["strategy", "business"] },
+    industry_research: { path: pdf, tags: ["行业研究", "产业研究"] }
   }
 };
 const adapter = new MailAdapter(config, { info() {}, warn() {}, error() {} });
@@ -65,5 +67,41 @@ const copy = adapter.prepareOutgoingCopy(config.resumes.data_ai, "测试公司",
 assert(fs.existsSync(copy.path));
 assert.strictEqual(fs.readFileSync(pdf).toString("hex"), before);
 assert.match(copy.filename, /AI产品实习生\.pdf$/);
+
+const autoSelection = selectResume({
+  config,
+  projectRoot: path.resolve(__dirname, ".."),
+  jd: "负责 AI Agent、Python 数据建模和机器学习应用",
+  resumeKey: "auto"
+});
+assert.strictEqual(autoSelection.resume.key, "data_ai");
+assert(autoSelection.matched_keywords.includes("AI"));
+
+assert.throws(
+  () => selectResume({ config, projectRoot: path.resolve(__dirname, ".."), jd: "文学编辑", resumeKey: "auto" }),
+  /No application rule matched/
+);
+
+assert.strictEqual(
+  buildAttachmentFileName({ config, jd: "", position: "前沿科技产业研究实习生" }),
+  "方乐_北京交通大学_前沿科技产业研究实习生.pdf"
+);
+
+const strictConfig = { ...config, jobApplication: { candidateName: "方乐", school: "北京交通大学", major: "环境工程", graduationTime: "2027.06" } };
+assert.strictEqual(
+  buildAttachmentFileName({ config: strictConfig, jd: "简历命名格式：姓名-学校-专业-毕业时间", position: "分析师实习生" }),
+  "方乐-北京交通大学-环境工程-2027.06.pdf"
+);
+
+const applicationCheck = validateApplication({
+  selectedResume: { key: "data_ai" },
+  subject: "AI产品实习生应聘-方乐-北京交通大学",
+  attachmentFilename: "方乐_北京交通大学_AI产品实习生.pdf",
+  attachments: [{ filename: "方乐_北京交通大学_AI产品实习生.pdf" }],
+  jd: "AI Agent 数据建模",
+  position: "AI产品实习生"
+});
+assert.strictEqual(applicationCheck.ready, true);
+assert.match(applicationCheck.summary, /Ready for draft/);
 
 console.log("unit tests passed");
